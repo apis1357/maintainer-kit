@@ -1,5 +1,9 @@
 # Maintainer Kit
 
+[![CI](https://github.com/apis1357/maintainer-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/apis1357/maintainer-kit/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/apis1357/maintainer-kit)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.10%2B-blue)](pyproject.toml)
+
 A small, dependency-free CLI and GitHub Action that audits whether a repository is ready for sustainable open-source maintenance.
 
 It checks for operational files and workflows that maintainers commonly need: licensing, contribution guidance, security reporting, CI, issue and pull-request templates, dependency updates, tests, releases, and agent instructions.
@@ -20,7 +24,35 @@ Maintainer Kit turns those expectations into a repeatable repository check that 
 - Weighted checks for README, licensing, security, contribution guidance, CI, templates, dependency automation, tests, releases, and `AGENTS.md`
 - Clear remediation guidance for failed checks
 
+## Installation
+
+Install the current development version directly from GitHub:
+
+```bash
+python -m pip install "git+https://github.com/apis1357/maintainer-kit.git"
+```
+
+After `v0.1.0` is published, pin production use to that release:
+
+```bash
+python -m pip install "git+https://github.com/apis1357/maintainer-kit.git@v0.1.0"
+```
+
+For contributor development:
+
+```bash
+git clone https://github.com/apis1357/maintainer-kit.git
+cd maintainer-kit
+python -m pip install -e .
+```
+
 ## Quick start
+
+```bash
+maintainer-kit .
+```
+
+The module entry point is equivalent:
 
 ```bash
 python -m maintainer_kit .
@@ -29,13 +61,13 @@ python -m maintainer_kit .
 JSON output:
 
 ```bash
-python -m maintainer_kit . --format json
+maintainer-kit . --format json
 ```
 
 Fail CI if the score is below 80:
 
 ```bash
-python -m maintainer_kit . --min-score 80
+maintainer-kit . --min-score 80
 ```
 
 ## Repository policy
@@ -69,7 +101,7 @@ jobs:
   audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - id: maintainer
         uses: apis1357/maintainer-kit@v0.1.0
         with:
