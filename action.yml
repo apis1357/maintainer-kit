@@ -8,8 +8,17 @@ inputs:
     required: false
     default: "80"
 
+outputs:
+  score:
+    description: Repository readiness score from 0 to 100
+    value: ${{ steps.audit.outputs.score }}
+  passed:
+    description: Whether the score meets the configured minimum
+    value: ${{ steps.audit.outputs.passed }}
+
 runs:
   using: composite
   steps:
-    - shell: bash
+    - id: audit
+      shell: bash
       run: python "$GITHUB_ACTION_PATH/run_action.py" "${{ inputs.min-score }}"
