@@ -1,0 +1,15 @@
+name: Maintainer Kit
+description: Audit repository readiness for sustainable open-source maintenance.
+author: apis1357
+
+inputs:
+  min-score:
+    description: Minimum acceptable score
+    required: false
+    default: "80"
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      run: python "$GITHUB_ACTION_PATH/run_action.py" "${{ inputs.min-score }}"

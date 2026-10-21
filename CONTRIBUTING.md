@@ -4,7 +4,7 @@ Thanks for contributing.
 
 ## Development
 
-Maintainer Kit requires Python 3.9+ and has no runtime dependencies.
+Maintainer Kit requires Python 3.10+ and has no runtime dependencies.
 
 Run tests:
 
@@ -15,7 +15,7 @@ python -m unittest discover -s tests -v
 Run the audit against this repository:
 
 ```bash
-python -m maintainer_kit .
+python -m maintainer_kit . --min-score 80
 ```
 
 ## Pull requests
