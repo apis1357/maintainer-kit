@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 from .audit import audit_repository, as_jsonable, score
+from .config import PolicyError, load_policy
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -14,8 +15,8 @@ def _parser() -> argparse.ArgumentParser:
     )
     p.add_argument("path", nargs="?", default=".", help="Repository path (default: .)")
     p.add_argument("--format", choices=["markdown", "json"], default="markdown")
-    p.add_argument("--min-score", type=int, default=0,
-                   help="Exit with status 1 when score is below this value.")
+    p.add_argument("--min-score", type=int, default=None,
+                   help="Exit with status 1 when score is below this value. Overrides repository policy.")
     return p
 
 
@@ -48,12 +49,22 @@ def main(argv=None) -> int:
         print(f"error: repository path does not exist or is not a directory: {root}")
         return 2
 
-    checks = audit_repository(root)
+    try:
+        policy = load_policy(root)
+        checks = audit_repository(root, policy)
+    except PolicyError as exc:
+        print(f"error: {exc}")
+        return 2
+
     value = score(checks)
+    minimum = args.min_score if args.min_score is not None else policy.minimum_score
 
     if args.format == "json":
-        print(json.dumps(as_jsonable(checks), indent=2))
+        payload = as_jsonable(checks)
+        payload["minimum_score"] = minimum
+        payload["passed"] = value >= minimum
+        print(json.dumps(payload, indent=2))
     else:
         print(render_markdown(checks))
 
-    return 1 if value < args.min_score else 0
+    return 1 if value < minimum else 0
