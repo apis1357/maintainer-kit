@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "maintainer-kit"
+version = "0.1.0"
+description = "Audit open-source repository maintenance readiness."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "Apache-2.0"}
+authors = [{name = "apis1357"}]
+keywords = ["opensource", "maintenance", "github", "ci", "audit"]
+
+[project.scripts]
+maintainer-kit = "maintainer_kit.cli:main"
+
+[tool.setuptools]
+packages = ["maintainer_kit"]
