@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Iterable
+
+from .config import Policy, PolicyError
 
 
 @dataclass(frozen=True)
@@ -51,7 +53,23 @@ def _exists_glob(root: Path, patterns: Iterable[str]) -> Path | None:
     return None
 
 
-def audit_repository(root: Path) -> list[Check]:
+def _apply_policy(checks: list[Check], policy: Policy) -> list[Check]:
+    known = {check.key for check in checks}
+    unknown_disabled = sorted(set(policy.disabled_checks) - known)
+    unknown_weights = sorted(set(policy.weights or {}) - known)
+    unknown = unknown_disabled + [key for key in unknown_weights if key not in unknown_disabled]
+    if unknown:
+        raise PolicyError(f"unknown check keys in policy: {', '.join(unknown)}")
+
+    configured: list[Check] = []
+    for check in checks:
+        if check.key in policy.disabled_checks:
+            continue
+        configured.append(replace(check, weight=policy.weight_for(check.key, check.weight)))
+    return configured
+
+
+def audit_repository(root: Path, policy: Policy | None = None) -> list[Check]:
     root = root.resolve()
 
     def file_check(key, title, weight, candidates, remediation):
@@ -124,7 +142,7 @@ def audit_repository(root: Path) -> list[Check]:
         "Add a reproducible release/publish workflow when releases are applicable.",
     ))
 
-    return checks
+    return _apply_policy(checks, policy) if policy else checks
 
 
 def score(checks: list[Check]) -> int:
